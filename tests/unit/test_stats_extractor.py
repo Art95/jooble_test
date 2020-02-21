@@ -10,14 +10,15 @@ class TestStatisticsExtractor(unittest.TestCase):
         # Load test data
         with open('fixtures/test_file.tsv') as data_file:
             for line in data_file:
-                values = line.split(',')
+                columns = line.split('\t')
+                values = columns[1].split(',')
 
-                job_id = int(values[0])
-                feature_code = int(values[1])
-                features = np.array(values[2:])
+                job_id = np.int64(columns[0])
+                feature_code = np.int32(values[0])
+                features = np.array(values[1:], dtype=np.int32)
 
                 if job_id not in self.test_data:
-                    self.test_data = {}
+                    self.test_data[job_id] = {}
 
                 self.test_data[job_id][feature_code] = features
                 self.feature_codes.add(feature_code)
