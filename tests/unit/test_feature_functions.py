@@ -4,7 +4,7 @@ import random
 from tests.unit.utils import *
 from scipy import stats
 
-from datastats import calculate_abs_max_mean_diff, get_argmax, calculate_z_score, get_max, get_min
+from feature_processor import calculate_abs_max_mean_diff, get_argmax, calculate_z_score, get_max, get_min
 
 class TestFeatureProcessing(unittest.TestCase):
     def setUp(self):

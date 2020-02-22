@@ -2,7 +2,7 @@ import unittest
 import random
 
 from tests.unit.utils import *
-from datastats import update_statistics, merge_statistics
+from feature_processor import update_statistics, merge_statistics
 
 class TestStatisticsExtractor(unittest.TestCase):
     def setUp(self):
