@@ -2,7 +2,9 @@ import unittest
 import random
 
 from tests.unit.utils import *
-from datastats import StatisticsExtractor
+from scipy import stats
+
+from datastats import get_abs_max_mean_diff, get_argmax, get_z_score
 
 class TestFeatureProcessing(unittest.TestCase):
     def setUp(self):
@@ -14,16 +16,37 @@ class TestFeatureProcessing(unittest.TestCase):
         self.feature_codes = feature_codes
 
     def test_get_z_score(self):
-        self.assertTrue(False)
+        features = filter_features_for_codes(self.test_data, self.feature_codes)
+        means = features.mean(axis=0)
+        stds = features.std(axis=0, ddof=1)
+
+        expected_z_scores = stats.zscore(features, axis=0, ddof=1) # using sample standard deviation
+
+        for i, feature_row in enumerate(features):
+            actual_z_cores = get_z_score(feature_row, means, stds)
+            self.assertEqual(expected_z_scores[i], actual_z_cores)
+
 
     def test_get_argmax(self):
-        self.assertTrue(False)
+        features = filter_features_for_codes(self.test_data, self.feature_codes)
+
+        for feature_row in features:
+            expected_argmax = feature_row.argmax()
+            actual_argmax = get_argmax(feature_row)
+
+            self.assertEqual(expected_argmax, actual_argmax)
 
     def test_get_abs_max_mean_diff(self):
-        self.assertTrue(False)
+        features = filter_features_for_codes(self.test_data, self.feature_codes)
+        means = np.mean(features, axis=0)
 
-    def test_process_features_file(self):
-        self.assertTrue(False)
+        for feature_row in features:
+            index_max = feature_row.argmax()
+            expected_abs_max_mean_diff = np.abs(feature_row[index_max] - means[index_max])
+            actual_abs_max_mean_diff = get_abs_max_mean_diff(feature_row, means)
+
+            self.assertEqual(expected_abs_max_mean_diff, actual_abs_max_mean_diff)
+
 
 if __name__ == '__main__':
     unittest.main()
