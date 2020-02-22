@@ -2,7 +2,7 @@ import unittest
 import random
 
 from tests.unit.utils import *
-from datastats import StatisticsExtractor
+from datastats import update_statistics, merge_statistics
 
 class TestStatisticsExtractor(unittest.TestCase):
     def setUp(self):
@@ -13,67 +13,55 @@ class TestStatisticsExtractor(unittest.TestCase):
         self.test_data = test_data
         self.feature_codes = feature_codes
 
-    def test_get_statistics_one_feature_code(self):
-        feature_code = 2
-        stats_extractor = StatisticsExtractor(self.test_file_path)
-        filtered_rows = filter_features_for_code(self.test_data, feature_code)
-
-        expected_means = filtered_rows.mean(axis=0)
-        expected_stds = filtered_rows.std(axis=0, ddof=1) # sample standard deviation
-        expected_maxs = np.amax(filtered_rows, axis=0)
-        expected_mins = np.amin(filtered_rows, axis=0)
-        expected_counter = filtered_rows.shape[0]
-
-        expected_result = { "count": expected_counter,
-                            "mean": expected_means,
-                            "std": expected_stds,
-                            "max": expected_maxs,
-                            "min": expected_mins }
-
-        actual_result = stats_extractor.get_statistics(codes=[feature_code])
-
-        self.assertEqual(expected_result, actual_result)
-
-
-    def test_get_statistics_all_feature_codes(self):
-        stats_extractor = StatisticsExtractor(self.test_file_path)
-        filtered_rows = filter_features_for_codes(self.test_data, self.feature_codes)
-
-        expected_means = filtered_rows.mean(axis=0)
-        expected_stds = filtered_rows.std(axis=0, ddof=1) # sample standard deviation
-        expected_maxs = np.amax(filtered_rows, axis=0)
-        expected_mins = np.amin(filtered_rows, axis=0)
-        expected_counter = filtered_rows.shape[0]
-
-        expected_result = { "count": expected_counter,
-                            "mean": expected_means,
-                            "std": expected_stds,
-                            "max": expected_maxs,
-                            "min": expected_mins }
-
-        actual_result = stats_extractor.get_statistics(codes=self.feature_codes)
-
-        self.assertEqual(expected_result, actual_result)
-
-
-    def test_get_statistics_some_feature_codes(self):
-        feature_codes = random.sample(self.feature_codes, k=3)
-        stats_extractor = StatisticsExtractor(self.test_file_path)
+    def test_update_statistics(self):
+        feature_codes = random.sample(self.feature_codes, k=2)
         filtered_rows = filter_features_for_codes(self.test_data, feature_codes)
+        stats = { "mean": np.array([]),
+                  "std": np.array([]),
+                  "min": np.int32,
+                  "max": np.int32,
+                  "count": np.int32 }
 
-        expected_means = filtered_rows.mean(axis=0)
-        expected_stds = filtered_rows.std(axis=0, ddof=1) # sample standard deviation
-        expected_maxs = np.amax(filtered_rows, axis=0)
-        expected_mins = np.amin(filtered_rows, axis=0)
-        expected_counter = filtered_rows.shape[0]
+        for i, features in enumerate(filtered_rows):
+            counter = i + 1
+            current_rows = filtered_rows[:counter][:]
 
-        expected_result = { "count": expected_counter,
-                            "mean": expected_means,
-                            "std": expected_stds,
-                            "max": expected_maxs,
-                            "min": expected_mins }
+            expected_result = { "count": counter,
+                                "mean": current_rows.mean(axis=0),
+                                "std": current_rows.std(axis=0, ddof=1), # sample standard deviation,
+                                "max": np.amax(current_rows, axis=0),
+                                "min": np.amin(current_rows, axis=0) }
 
-        actual_result = stats_extractor.get_statistics(codes=[feature_codes])
+            actual_result = update_statistics(features, stats)
+
+            self.assertEqual(expected_result, actual_result)
+
+
+    def test_merge_statistics(self):
+        feature_codes = random.sample(self.feature_codes, k=3)
+        stats_for_merging = []
+
+        for feature_code in feature_codes:
+            features_for_code = filter_features_for_code(self.test_data, feature_code)
+
+
+            code_stats = { "count": features_for_code.shape[0],
+                           "mean": features_for_code.mean(axis=0),
+                           "std": features_for_code.std(axis=0, ddof=1), # sample standard deviation
+                           "min": np.amin(features_for_code, axis=0),
+                           "max": np.amax(features_for_code, axis=0) }
+
+            stats_for_merging.append(code_stats)
+
+        combined_rows = filter_features_for_codes(self.test_data, feature_codes)
+
+        expected_result = { "count": combined_rows.shape[0],
+                            "mean": combined_rows.mean(axis=0),
+                            "std": combined_rows.std(axis=0, ddof=1), # sample standard deviation
+                            "max": np.amax(combined_rows, axis=0),
+                            "min": np.amin(combined_rows, axis=0) }
+
+        actual_result = merge_statistics(stats_for_merging)
 
         self.assertEqual(expected_result, actual_result)
 

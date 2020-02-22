@@ -41,6 +41,6 @@ def filter_features_for_code(test_data, feature_code):
         if feature_code in test_data[job_id]:
             features = test_data[job_id][feature_code]
             filtered_features = np.vstack([filtered_features, features]) \
-                if filtered_features.size else features
+                if filtered_features.size else np.reshape(features, [1, features.shape[0]])
 
     return filtered_features
