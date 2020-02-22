@@ -1,14 +1,21 @@
+import numpy as np
+
 def calculate_z_score(features, means, stds):
-    raise NotImplementedError()
+    vec_z_score = np.vectorize(_z_score)
+    return vec_z_score(features, means, stds)
 
 def get_argmax(features):
-    raise NotImplementedError()
+    return np.argmax(features)
 
 def calculate_abs_max_mean_diff(features, means):
-    raise NotImplementedError()
+    index_max = get_argmax(features)
+    return np.abs(features[index_max] - means[index_max])
 
 def get_min(features):
-    raise NotImplementedError()
+    return np.amin(features)
 
 def get_max(features):
-    raise NotImplementedError()
+    return np.amax(features)
+
+def _z_score(feature, mean, std):
+    return (feature - mean) / std

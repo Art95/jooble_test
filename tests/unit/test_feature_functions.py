@@ -15,7 +15,7 @@ class TestFeatureProcessing(unittest.TestCase):
         self.test_data = test_data
         self.feature_codes = feature_codes
 
-    def test_get_z_score(self):
+    def test_calculate_z_score(self):
         features = filter_features_for_codes(self.test_data, self.feature_codes)
         means = features.mean(axis=0)
         stds = features.std(axis=0, ddof=1)
@@ -24,7 +24,7 @@ class TestFeatureProcessing(unittest.TestCase):
 
         for i, feature_row in enumerate(features):
             actual_z_cores = calculate_z_score(feature_row, means, stds)
-            self.assertEqual(expected_z_scores[i], actual_z_cores)
+            np.testing.assert_allclose(actual_z_cores, expected_z_scores[i])
 
 
     def test_get_argmax(self):
@@ -36,7 +36,7 @@ class TestFeatureProcessing(unittest.TestCase):
 
             self.assertEqual(expected_argmax, actual_argmax)
 
-    def test_get_abs_max_mean_diff(self):
+    def test_calculate_abs_max_mean_diff(self):
         features = filter_features_for_codes(self.test_data, self.feature_codes)
         means = np.mean(features, axis=0)
 
