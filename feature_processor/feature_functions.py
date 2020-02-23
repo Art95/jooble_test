@@ -18,4 +18,7 @@ def get_max(features):
     return np.amax(features)
 
 def _z_score(feature, mean, std):
+    if std == 0:
+        raise RuntimeError("Cannot calculate z-score. Standard deviation is 0.")
+
     return (feature - mean) / std
