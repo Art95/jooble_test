@@ -1,13 +1,17 @@
 import unittest
 import random
+from pathlib import Path
+import os
 
 from tests.unit.utils import *
 from feature_processor import update_statistics, merge_statistics
 
-class TestStatisticsExtractor(unittest.TestCase):
+class TestStatisticsFunctions(unittest.TestCase):
     def setUp(self):
         random.seed(1234)
-        self.test_file_path = 'fixtures/test_file.tsv'
+        current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+
+        self.test_file_path = current_path / 'fixtures' / 'test_input.tsv'
         test_data, feature_codes = read_test_data(self.test_file_path)
 
         self.test_data = test_data
@@ -42,7 +46,7 @@ class TestStatisticsExtractor(unittest.TestCase):
 
 
     def test_merge_statistics(self):
-        feature_codes = random.sample(self.feature_codes, k=3)
+        feature_codes = random.sample(self.feature_codes, k=2)
         stats_for_merging = []
 
         for feature_code in feature_codes:
